@@ -9,69 +9,112 @@
 # define BUFFER_SIZE 15
 #endif
 
-char *ft(char *s1, char *s2, int len)
+char *ft_strchr(char *s, int c)
 {
-    int l = 0, i = -1;
-    char *res;
-
-    while (s1 && s1[l])
-        l++;
-    res = malloc(len + l + 1);
-    if (!res)
-        return (free(s1), NULL);
-    while (++i < l)
-        res[i] = s1[i];
-    i = -1;
-    while (++i < len)
-        res[l + i] = s2[i];
-    res[l + len] = '\0';
-    return (free(s1), res);
+    if (!s)
+        return NULL;
+    while(*s && *s != (char)c)
+        s++;
+    if (*s == (char)c)
+        return s;
+    return NULL;
 }
 
-char *gnl(int fd)
+void *ft_memcpy(void *dest, const void *src, size_t n)
 {
-    static char buf[BUFFER_SIZE + 1];
-    char *line = NULL;
-    char *nl;
-    size_t r;
+    size_t i = 0;
+    if (!dest || !src)
+        return dest;
+    while(i < n)
+    {
+        ((char *)dest)[i] = ((char *)src)[i];
+        i++;
+    }
+    return dest;
+}
+
+size_t ft_strlen(char *s)
+{
+    size_t i = 0;
+    if (!s)
+        return 0;
+    while (s[i])
+        i++;
+    return i;
+}
+
+char *str_append_mem(char **s1, char *s2, size_t size2)
+{
+    size_t size1 = ft_strlen(*s1);
+    char *tmp = malloc(size2 + size1 + 1);
+    if (!tmp)
+        return NULL;
+    if (*s1)
+        ft_memcpy(tmp, *s1, size1);
+    ft_memcpy(tmp + size1, s2, size2);
+    tmp[size1 + size2] = '\0';
+    free(*s1);
+    *s1 = tmp;
+    return tmp; 
+}
+
+void *ft_memmove(void *dest, const void *src, size_t n)
+{
+    size_t i;
+    if (!dest || !src || dest == src || n == 0)
+        return dest;
+    if (dest > src)
+    {
+        i = n;
+        while(i-- > 0)
+            ((char *)dest)[i] = ((char *)src)[i];
+    }
+    else
+    {
+        i = 0;
+        while (i < n)
+        {
+            ((char *)dest)[i] = ((char *)src)[i];
+            i++;
+        }
+    }
+    return dest;
+}
+
+char *get_next_line(int fd)
+{
+    static char b[BUFFER_SIZE + 1];
+    char *line = NULL, *nl;
+    ssize_t r;
 
     if (fd < 0 || BUFFER_SIZE <= 0)
         return NULL;
     while (1)
     {
-        nl = buf;
-        while (*nl && *nl != '\n')
-            nl++;
-        if (*nl == '\n')
+        nl = ft_strchr(b, '\n');
+        if (nl)
         {
-            line = ft(line, buf, nl - buf + 1);
-            if (!line)
+            if (!str_append_mem(&line, b, nl - b + 1))
                 return NULL;
-            int i = 0, j = nl - buf + 1;
-            while (buf[j])
-                buf[i++] = buf[j++];
-            buf[i] = '\0';
+            ft_memmove(b, nl + 1, ft_strlen(nl + 1) + 1);
             return line;
         }
-        if (*buf)
-        {
-            line = ft(line, buf, nl - buf);
-            if (!line)
+        if (*b)
+            if (!str_append_mem(&line, b, ft_strlen(b)))
                 return NULL;
-        }
-        r = read(fd, buf, BUFFER_SIZE);
+        b[0] = '\0';
+        r = read(fd, b, BUFFER_SIZE);
         if (r <= 0)
-            return (r == 0 && line ? line : (free(line), NULL));
-        buf[r] = '\0';
+            return (r == 0 ? line : NULL);
+        b[r] = '\0';
     }
 }
 
 int main()
 {
-    int fd;
     char *line;
-    fd=open("deneme.txt", O_RDONLY);
-    while((line = gnl(fd)))
+    int fd=open("deneme.txt", O_RDONLY);
+    while((line = get_next_line(fd)))
     {
         printf("%s", line);
         free(line);

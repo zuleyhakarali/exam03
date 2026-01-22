@@ -30,7 +30,7 @@ int main(int ac, char **av)
             write(1, new, pos - new);
             for (i = 0; i < len; i++)
                 write(1, "*", 1);
-            mem move(new, pos + len, strlen(pos + len) + 1);
+            memmove(new, pos + len, strlen(pos + len) + 1);
         }
     }
     if (r < 0)
@@ -39,3 +39,4 @@ int main(int ac, char **av)
         write(1, new, strlen(new));
     free(new);
 }
+ 

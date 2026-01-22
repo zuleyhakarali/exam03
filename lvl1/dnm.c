@@ -1,3 +1,14 @@
+#define _GNU_SOURCE
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 10
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -14,11 +25,11 @@ int match_space(FILE *f)
 
 int match_char(FILE *f, char c)
 {
-    int r =  fgetc(f);
-    if (r == c)
+    int s = fgetc(f);
+    if (s == c)
         return 1;
-    if (r != EOF)
-        ungetc(r, f);
+    if (s != EOF)
+        ungetc(c, f);
     return -1;
 }
 
@@ -33,11 +44,10 @@ int scan_char(FILE *f, va_list ap)
 
 int scan_int(FILE *f, va_list ap)
 {
-    int sign = 1, val = 0, c;
+    int sign=1, val=0, c;
     int *out = va_arg(ap, int *);
-
     c = fgetc(f);
-    if (c == '-' || c == '+')
+    if (c == '-' || c== '+')
     {
         sign = (c == '-') ? -1 : 1;
         c = fgetc(f);
@@ -60,8 +70,7 @@ int scan_int(FILE *f, va_list ap)
 int scan_string(FILE *f, va_list ap)
 {
     char *s = va_arg(ap, char *);
-    int c, i = 0;
-
+    int i =0, c;
     while ((c = fgetc(f)) != EOF && !isspace(c))
         s[i++] = c;
     if (c != EOF)
@@ -71,6 +80,7 @@ int scan_string(FILE *f, va_list ap)
     s[i] = '\0';
     return 1;
 }
+
 
 int	match_conv(FILE *f, const char **format, va_list ap)
 {
@@ -125,28 +135,24 @@ int ft_vfscanf(FILE *f, const char *format, va_list ap)
 	return nconv;
 }
 
+
 int ft_scanf(const char *format, ...)
 {
-    va_list ap;
-    int ret;
-
+	va_list ap;
     va_start(ap, format);
-    ret = ft_vfscanf(stdin, format, ap);
-    va_end(ap);
-    return ret;
+	int ret = ft_vfscanf(stdin, format, ap);
+	va_end(ap);
+	return ret;
 }
 
-int main(void)
+int main()
 {
-	int		d;
-	char	s[100];
-	char	c;
-	int		ret;
-
-	printf("Input bekleniyor:\n");
-	ret = ft_scanf("%d %s %c", &d, s, &c);
-	printf("ft_scanf return = %d\n", ret);
-	printf("d = %d\n", d);
-	printf("s = %s\n", s);
-	printf("c = %c\n", c);
+    int d;
+    char s[100];
+    char c;
+    int r = scanf("%d %s %c", &d, s, &c);
+    printf("%d\n", r);
+    printf("%d ", d);
+    printf("%s ", s);
+    printf("%c\n", c);
 }
