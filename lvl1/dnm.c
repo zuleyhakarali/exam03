@@ -150,7 +150,7 @@ int main()
     int d;
     char s[100];
     char c;
-    int r = scanf("%d %s %c", &d, s, &c);
+    int r = ft_scanf("%d %s %c", &d, s, &c);
     printf("%d\n", r);
     printf("%d ", d);
     printf("%s ", s);
