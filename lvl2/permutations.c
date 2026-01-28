@@ -1,68 +1,72 @@
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-static void	swap(char *a, char *b)
+void swap(char *a, char *b)
 {
-	char t = *a;
-	*a = *b;
-	*b = t;
+    char tmp = *a;
+    *a = *b;
+    *b = tmp;
 }
 
-static void	sort_str(char *s)
+void sort(char *s)
 {
-	int i, j;
-
-	i = 0;
-	while (s[i])
-	{
-		j = i + 1;
-		while (s[j])
-		{
-			if (s[i] > s[j])
-				swap(&s[i], &s[j]);
-			j++;
-		}
-		i++;
-	}
+    int i = 0, j;
+    while (s[i])
+    {
+        j = i + 1;
+        while (s[j])
+        {
+            if (s[i] > s[j])
+                swap(&s[i], &s[j]);
+            j++;
+        }
+        i++;
+    }
 }
 
-static void	print(char *s)
+int len(char *s)
 {
-	int i = 0;
-	while (s[i])
-		write(1, &s[i++], 1);
-	write(1, "\n", 1);
+    int i = 0;
+    while (s[i])
+        i++;
+    return i;
 }
 
-static void	permute(char *s, int l)
+void rev(char *s, int start)
 {
-	int i;
-
-	if (!s[l])
-	{
-		print(s);
-		return;
-	}
-	i = l;
-	while (s[i])
-	{
-		swap(&s[l], &s[i]);
-		permute(s, l + 1);
-		swap(&s[l], &s[i]);
-		i++;
-	}
+    int end = len(s) - 1;
+    while (start < end)
+    {
+        swap(&s[start], &s[end]);
+        start++;
+        end--;
+    }
 }
 
-int	main(int ac, char **av)
+int permut(char *s)
 {
-	char *s;
+    int i = len(s) - 2;
+    int j = len(s) - 1;
+    while (i >= 0 && s[i] >= s[i + 1])
+        i--;
+    if (i < 0)
+        return 0;
+    while(s[j] <= s[i])
+        j--;
+    swap(&s[i], &s[j]);
+    rev(s, i + 1);
+    return 1;  
+}
 
-	if (ac != 2)
-		return 1;
-	s = av[1];
-	if (!*s)
-		return 0;
-	sort_str(s);
-	permute(s, 0);
-	return 0;
+int main(int ac, char **av)
+{
+    if (ac != 2 || !av[1][0])
+        return 1;
+    char *s;
+    s = av[1];
+    sort(s);
+    puts(s);
+    while (permut(s))
+        puts(s);
 }

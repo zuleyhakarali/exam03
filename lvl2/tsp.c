@@ -2,88 +2,62 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct s_pt
-{
-	float x;
-	float y;
-}	t_pt;
+typedef struct{
+    float x, y;
+} city;
 
-static float dist(t_pt a, t_pt b)
+void swap(int *a, int *b)
 {
-	float dx = a.x - b.x;
-	float dy = a.y - b.y;
-	return sqrtf(dx * dx + dy * dy);
+    int t = *a;
+    *a = *b;
+    *b = t;
 }
 
-static float path_len(t_pt *p, int *ord, int n)
+float dist(city a, city b)
 {
-	float len = 0;
-	int i = 0;
-
-	while (i < n - 1)
-	{
-		len += dist(p[ord[i]], p[ord[i + 1]]);
-		i++;
-	}
-	len += dist(p[ord[n - 1]], p[ord[0]]);
-	return len;
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    return sqrtf(dx*dx + dy*dy);
 }
 
-static void swap(int *a, int *b)
+float path(city *c, int *or, int n)
 {
-	int t = *a;
-	*a = *b;
-	*b = t;
+    float len =0;
+    int i;
+    for(i=0;i<n-1;i++)
+        len += dist(c[or[i]], c[or[i+1]]);
+    len += dist(c[or[n-1]], c[or[0]]);
+    return len;
 }
 
-static void permute(t_pt *p, int *ord, int l, int n, float *best)
+void permut(city *c, int *or, int n, int idx, float *min)
 {
-	int i;
-	float cur;
-
-	if (l == n)
-	{
-		cur = path_len(p, ord, n);
-		if (*best < 0 || cur < *best)
-			*best = cur;
-		return;
-	}
-	i = l;
-	while (i < n)
-	{
-		swap(&ord[l], &ord[i]);
-		permute(p, ord, l + 1, n, best);
-		swap(&ord[l], &ord[i]);
-		i++;
-	}
+    int i;
+    float len;
+    if (idx == n)
+    {
+        len =path(c, or, n);
+        if (len < *min)
+            *min = len;
+        return ;
+    }
+    for(i = 0;i < n;i++)
+    {
+        swap(&or[idx], &or[i]);
+        permut(c, or, n, idx+1, min);
+        swap(&or[idx], &or[i]);
+    }
 }
 
-int main(void)
+int main()
 {
-	t_pt	*p = NULL;
-	int		*ord = NULL;
-	int		n = 0;
-	float	best = -1;
-
-	while (1)
-	{
-		t_pt tmp;
-		if (fscanf(stdin, "%f, %f\n", &tmp.x, &tmp.y) != 2)
-			break;
-		p = realloc(p, sizeof(t_pt) * (n + 1));
-		p[n++] = tmp;
-	}
-	if (n == 0)
-		return 0;
-
-	ord = malloc(sizeof(int) * n);
-	for (int i = 0; i < n; i++)
-		ord[i] = i;
-
-	permute(p, ord, 0, n, &best);
-	printf("%.2f\n", best);
-
-	free(p);
-	free(ord);
-	return 0;
+    city c[11];
+    int or[11], n = 0, i;
+    float min = 1e9;
+    while (fscanf(stdin, "%f, %f\n", &c[n].x, &c[n].y) == 2)
+        n++;
+    for(i=0;i<n;i++)
+        or[i] = i;
+    permut(c, or, n, 0, &min);
+    printf("%.2f\n", min);
 }

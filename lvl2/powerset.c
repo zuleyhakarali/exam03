@@ -1,80 +1,38 @@
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-static void	putnbr(int n)
+void ft(int *ar, int size, int tar, int idx, int *s, int sub_s)
 {
-	char c;
-
-	if (n < 0)
-	{
-		write(1, "-", 1);
-		n = -n;
-	}
-	if (n >= 10)
-		putnbr(n / 10);
-	c = '0' + (n % 10);
-	write(1, &c, 1);
-}
-
-static void	print_subset(int *subset, int size)
-{
-	int i = 0;
-
-	while (i < size)
-	{
-		if (i > 0)
-			write(1, " ", 1);
-		putnbr(subset[i]);
-		i++;
-	}
-	write(1, "\n", 1);
-}
-
-static void	backtrack(
-	int *arr, int len,
-	int target, int idx,
-	int sum, int *subset, int sub_size)
-{
-	if (sum == target)
+    int i;
+    if (tar == 0)
     {
-		print_subset(subset, sub_size);
-        return ;
+        for (i = 0; i < sub_s; i++)
+            printf("%d%c", s[i], i == sub_s - 1 ? '\n' : ' ');
+        if (sub_s == 0)
+            printf("\n");
+        return;
     }
-	if (idx >= len)
-		return;
-	backtrack(arr, len, target, idx + 1, sum, subset, sub_size);
-	subset[sub_size] = arr[idx];
-	backtrack(arr, len, target, idx + 1,
-		sum + arr[idx], subset, sub_size + 1);
+    if (idx == size)
+        return;
+    s[sub_s] = ar[idx];
+    ft(ar, size, tar - ar[idx], idx + 1, s, sub_s + 1);
+    ft(ar, size, tar, idx + 1, s, sub_s);
 }
 
-int	main(int ac, char **av)
+int main(int ac, char **av)
 {
-	int	target;
-	int	*arr;
-	int	*subset;
-	int	len;
-	int	i;
-
-	if (ac < 2)
-		return 0;
-
-	target = atoi(av[1]);
-	len = ac - 2;
-
-	arr = malloc(sizeof(int) * len);
-	subset = malloc(sizeof(int) * len);
-	if (!arr || !subset)
-		return 1;
-
-	i = 0;
-	while (i < len)
-	{
-		arr[i] = atoi(av[i + 2]);
-		i++;
-	}
-	backtrack(arr, len, target, 0, 0, subset, 0);
-	free(arr);
-	free(subset);
-	return 0;
+    int tar, size, i, *ar, *s;
+    if (ac < 2)
+        return 1;
+    tar = atoi(av[1]);
+    size = ac - 2;
+    ar = malloc(sizeof(int) * size);
+    s = malloc(sizeof(int) * size);
+    if (!ar || !s)
+        return 1;
+    for (i = 0; i < size; i++)
+        ar[i] = atoi(av[i + 2]);
+    ft(ar, size, tar, 0, s, 0);
+    free(ar);
+    free(s);
 }
